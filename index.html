@@ -1,0 +1,904 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Carete | Step Into Art</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Poppins', system-ui, sans-serif; }
+
+    body {
+      background: #0e0d0c;
+      color: #f5f1ea;
+      overflow-x: hidden;
+      scroll-behavior: smooth;
+    }
+
+    /* ===== ANIMATIONS ===== */
+    @keyframes float {
+      0%, 100% { transform: translateY(0) rotate(0deg); }
+      50% { transform: translateY(-25px) rotate(3deg); }
+    }
+    @keyframes pulse {
+      0%, 100% { box-shadow: 0 0 0 0 rgba(255, 90, 60, 0.7); }
+      50% { box-shadow: 0 0 0 20px rgba(255, 90, 60, 0); }
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    @keyframes slideUp {
+      from { opacity: 0; transform: translateY(50px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    @keyframes slideLeft {
+      from { opacity: 0; transform: translateX(-60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes slideRight {
+      from { opacity: 0; transform: translateX(60px); }
+      to { opacity: 1; transform: translateX(0); }
+    }
+    @keyframes glow {
+      0%, 100% { text-shadow: 0 0 20px #ff5a3c; }
+      50% { text-shadow: 0 0 40px #ff5a3c, 0 0 60px #ff5a3c; }
+    }
+    @keyframes marquee {
+      from { transform: translateX(0); }
+      to { transform: translateX(-50%); }
+    }
+    @keyframes bounce {
+      0%, 100% { transform: translateY(0); }
+      50% { transform: translateY(-8px); }
+    }
+    @keyframes gradientBG {
+      0% { background-position: 0% 50%; }
+      50% { background-position: 100% 50%; }
+      100% { background-position: 0% 50%; }
+    }
+    @keyframes ticker {
+      from { transform: translateX(100%); }
+      to { transform: translateX(-100%); }
+    }
+
+    /* ===== LOADER ===== */
+    #loader {
+      position: fixed; inset: 0;
+      background: #0e0d0c;
+      display: flex; justify-content: center; align-items: center;
+      z-index: 9999;
+      transition: opacity 0.6s ease, visibility 0.6s ease;
+    }
+    #loader.hide { opacity: 0; visibility: hidden; }
+    .loader-shoe {
+      font-size: 5rem;
+      color: #ff5a3c;
+      animation: spin 1.2s linear infinite;
+    }
+
+    /* ===== NAVBAR ===== */
+    nav {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; justify-content: space-between; align-items: center;
+      padding: 1.2rem 6%;
+      background: rgba(14, 13, 12, 0.85);
+      backdrop-filter: blur(15px);
+      border-bottom: 1px solid #ff5a3c30;
+      z-index: 1000;
+      animation: slideUp 0.6s ease;
+    }
+    .logo {
+      font-size: 1.8rem; font-weight: 800;
+      display: flex; align-items: center; gap: 10px;
+      cursor: pointer;
+    }
+    .logo i { color: #ff5a3c; transition: 0.4s; }
+    .logo:hover i { transform: rotate(-20deg) scale(1.2); }
+    .logo span { color: #ff5a3c; }
+
+    nav ul {
+      display: flex; gap: 2.5rem; list-style: none;
+    }
+    nav ul a {
+      color: #f5f1ea; text-decoration: none;
+      font-weight: 500; font-size: 0.95rem;
+      position: relative; padding: 5px 0;
+      transition: color 0.3s;
+    }
+    nav ul a::after {
+      content: ''; position: absolute;
+      bottom: 0; left: 0; width: 0; height: 2px;
+      background: #ff5a3c; transition: width 0.3s;
+    }
+    nav ul a:hover { color: #ff5a3c; }
+    nav ul a:hover::after { width: 100%; }
+
+    .nav-icons { display: flex; gap: 1.5rem; font-size: 1.2rem; }
+    .nav-icons i {
+      cursor: pointer; transition: 0.3s;
+      position: relative;
+    }
+    .nav-icons i:hover {
+      color: #ff5a3c;
+      transform: scale(1.25) rotate(8deg);
+    }
+    .cart-count {
+      position: absolute; top: -8px; right: -10px;
+      background: #ff5a3c; color: white;
+      font-size: 0.65rem; font-weight: 700;
+      width: 18px; height: 18px;
+      border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      animation: pulse 2s infinite;
+    }
+
+    /* ===== HERO ===== */
+    .hero {
+      min-height: 100vh;
+      padding: 8rem 6% 4rem;
+      display: flex; align-items: center; justify-content: space-between;
+      gap: 3rem; flex-wrap: wrap;
+      position: relative; overflow: hidden;
+    }
+    .hero::before {
+      content: '';
+      position: absolute; top: -20%; right: -10%;
+      width: 700px; height: 700px;
+      background: radial-gradient(circle, #ff5a3c25 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 8s ease-in-out infinite;
+    }
+    .hero::after {
+      content: '';
+      position: absolute; bottom: -30%; left: -15%;
+      width: 500px; height: 500px;
+      background: radial-gradient(circle, #ff5a3c15 0%, transparent 70%);
+      border-radius: 50%;
+      animation: float 10s ease-in-out infinite reverse;
+    }
+
+    .hero-text {
+      flex: 1 1 450px; position: relative; z-index: 2;
+      animation: slideLeft 1s ease;
+    }
+    .hero-text .tag {
+      display: inline-block;
+      background: #ff5a3c20; color: #ff5a3c;
+      padding: 0.5rem 1.3rem; border-radius: 50px;
+      font-size: 0.8rem; font-weight: 700;
+      letter-spacing: 2px; text-transform: uppercase;
+      border: 1px solid #ff5a3c50;
+      margin-bottom: 1.5rem;
+      animation: pulse 2s infinite;
+    }
+    .hero-text h1 {
+      font-size: 4.5rem; line-height: 1.05;
+      font-weight: 900; letter-spacing: -2px;
+      margin-bottom: 1.5rem;
+    }
+    .hero-text h1 em {
+      color: #ff5a3c; font-style: normal;
+      animation: glow 3s ease-in-out infinite;
+    }
+    .hero-text p {
+      font-size: 1.15rem; color: #b8b0a6;
+      margin-bottom: 2.5rem; max-width: 500px;
+    }
+
+    .cta-row { display: flex; gap: 1rem; flex-wrap: wrap; }
+    .btn {
+      padding: 1rem 2.2rem; border-radius: 50px;
+      font-weight: 700; font-size: 0.95rem;
+      cursor: pointer; border: none;
+      display: inline-flex; align-items: center; gap: 10px;
+      transition: 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative; overflow: hidden;
+      text-decoration: none;
+    }
+    .btn-primary {
+      background: #ff5a3c; color: white;
+      box-shadow: 0 10px 30px -10px #ff5a3c;
+    }
+    .btn-primary:hover {
+      transform: translateY(-4px) scale(1.05);
+      box-shadow: 0 20px 40px -10px #ff5a3c;
+    }
+    .btn-primary i { transition: transform 0.3s; }
+    .btn-primary:hover i { transform: translateX(6px); }
+
+    .btn-ghost {
+      background: transparent; color: #f5f1ea;
+      border: 2px solid #f5f1ea30;
+    }
+    .btn-ghost:hover {
+      border-color: #ff5a3c; color: #ff5a3c;
+      transform: translateY(-4px);
+    }
+
+    .hero-visual {
+      flex: 1 1 400px;
+      display: flex; justify-content: center; align-items: center;
+      position: relative; z-index: 2;
+      animation: slideRight 1s ease;
+    }
+    .shoe-circle {
+      width: 480px; height: 480px;
+      max-width: 90vw; max-height: 90vw;
+      background: linear-gradient(135deg, #ff5a3c, #b1462b);
+      border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      position: relative;
+      animation: float 6s ease-in-out infinite;
+      box-shadow: 0 40px 80px -20px #ff5a3c80;
+    }
+    .shoe-circle::before {
+      content: '';
+      position: absolute; inset: -20px;
+      border: 2px dashed #ff5a3c80;
+      border-radius: 50%;
+      animation: spin 20s linear infinite;
+    }
+    .shoe-circle::after {
+      content: '';
+      position: absolute; inset: -40px;
+      border: 1px solid #ff5a3c40;
+      border-radius: 50%;
+      animation: spin 30s linear infinite reverse;
+    }
+    .shoe-emoji {
+      font-size: 15rem;
+      color: white;
+      filter: drop-shadow(0 15px 25px rgba(0,0,0,0.4));
+      transform: rotate(-20deg);
+      transition: 0.5s;
+      cursor: pointer;
+    }
+    .shoe-emoji:hover {
+      transform: rotate(-10deg) scale(1.1);
+    }
+
+    /* Floating badges */
+    .float-badge {
+      position: absolute;
+      background: white; color: #0e0d0c;
+      padding: 0.7rem 1.3rem;
+      border-radius: 50px;
+      font-size: 0.85rem; font-weight: 700;
+      box-shadow: 0 15px 30px rgba(0,0,0,0.3);
+      display: flex; align-items: center; gap: 8px;
+      z-index: 3;
+    }
+    .float-badge i { color: #ff5a3c; }
+    .badge-1 { top: 15%; left: 5%; animation: float 4s ease-in-out infinite; }
+    .badge-2 { bottom: 20%; right: 5%; animation: float 5s ease-in-out infinite 0.5s; }
+
+    /* ===== MARQUEE ===== */
+    .marquee {
+      background: #ff5a3c;
+      color: #0e0d0c;
+      padding: 1.2rem 0;
+      overflow: hidden;
+      border-top: 3px solid #0e0d0c;
+      border-bottom: 3px solid #0e0d0c;
+    }
+    .marquee-track {
+      display: flex; gap: 3rem;
+      animation: marquee 20s linear infinite;
+      white-space: nowrap;
+      font-weight: 900; font-size: 1.5rem;
+      text-transform: uppercase;
+      letter-spacing: 2px;
+    }
+    .marquee-track span { display: inline-flex; align-items: center; gap: 1rem; }
+    .marquee-track i { animation: spin 3s linear infinite; }
+
+    /* ===== SECTION ===== */
+    section { padding: 6rem 6%; position: relative; }
+    .section-head {
+      text-align: center;
+      margin-bottom: 4rem;
+      animation: slideUp 0.8s ease;
+    }
+    .section-head h2 {
+      font-size: 3.2rem; font-weight: 900;
+      letter-spacing: -1.5px; margin-bottom: 0.7rem;
+    }
+    .section-head h2 em { color: #ff5a3c; font-style: normal; }
+    .section-head p { color: #b8b0a6; font-size: 1.05rem; }
+
+    /* ===== PRODUCTS ===== */
+    .product-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(270px, 1fr));
+      gap: 2rem;
+    }
+    .product {
+      background: #1a1816;
+      border-radius: 24px;
+      padding: 2rem 1.5rem;
+      border: 1px solid #ffffff10;
+      text-align: center;
+      transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.6s ease backwards;
+    }
+    .product:nth-child(1) { animation-delay: 0.1s; }
+    .product:nth-child(2) { animation-delay: 0.2s; }
+    .product:nth-child(3) { animation-delay: 0.3s; }
+    .product:nth-child(4) { animation-delay: 0.4s; }
+
+    .product::before {
+      content: '';
+      position: absolute; top: -50%; left: -50%;
+      width: 200%; height: 200%;
+      background: conic-gradient(from 0deg, transparent, #ff5a3c30, transparent 30%);
+      animation: spin 5s linear infinite;
+      opacity: 0; transition: opacity 0.4s;
+    }
+    .product:hover::before { opacity: 1; }
+    .product::after {
+      content: '';
+      position: absolute; inset: 2px;
+      background: #1a1816;
+      border-radius: 22px;
+      z-index: 0;
+    }
+    .product > * { position: relative; z-index: 1; }
+
+    .product:hover {
+      transform: translateY(-15px);
+      border-color: #ff5a3c;
+      box-shadow: 0 30px 60px -20px #ff5a3c60;
+    }
+
+    .product-img {
+      width: 100%; height: 200px;
+      background: linear-gradient(135deg, #ff5a3c15, #ff5a3c05);
+      border-radius: 20px;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 6rem; color: #ff5a3c;
+      margin-bottom: 1.5rem;
+      transition: 0.4s;
+    }
+    .product:hover .product-img {
+      transform: scale(1.05) rotate(-3deg);
+      background: linear-gradient(135deg, #ff5a3c30, #ff5a3c10);
+    }
+    .product:hover .product-img i {
+      animation: bounce 0.6s ease infinite;
+    }
+    .product h3 {
+      font-size: 1.4rem; font-weight: 800;
+      margin-bottom: 0.4rem;
+      transition: 0.3s;
+    }
+    .product:hover h3 { color: #ff5a3c; }
+    .product .desc {
+      color: #888078; font-size: 0.85rem;
+      margin-bottom: 1rem;
+    }
+    .product .price {
+      font-size: 1.6rem; font-weight: 900;
+      color: #ff5a3c; margin-bottom: 1.2rem;
+    }
+    .product .price small {
+      font-size: 0.85rem; font-weight: 400;
+      color: #666; text-decoration: line-through;
+      margin-left: 8px;
+    }
+    .add-btn {
+      width: 100%; padding: 0.9rem;
+      border: 2px solid #ff5a3c;
+      background: transparent; color: #ff5a3c;
+      border-radius: 50px;
+      font-weight: 700; cursor: pointer;
+      display: flex; justify-content: center; align-items: center; gap: 8px;
+      transition: 0.3s;
+      position: relative; overflow: hidden;
+    }
+    .add-btn::before {
+      content: ''; position: absolute;
+      top: 50%; left: 50%;
+      width: 0; height: 0;
+      background: #ff5a3c; border-radius: 50%;
+      transform: translate(-50%, -50%);
+      transition: width 0.4s ease, height 0.4s ease;
+      z-index: -1;
+    }
+    .add-btn:hover::before { width: 400px; height: 400px; }
+    .add-btn:hover { color: white; }
+    .add-btn:hover i { animation: spin 0.6s ease; }
+
+    /* ===== STEPS ===== */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 2rem;
+    }
+    .step {
+      text-align: center;
+      padding: 2.5rem 1.5rem;
+      background: #1a1816;
+      border-radius: 24px;
+      border: 1px solid #ffffff10;
+      transition: 0.4s;
+      cursor: pointer;
+      animation: slideUp 0.6s ease backwards;
+    }
+    .step:nth-child(1) { animation-delay: 0.1s; }
+    .step:nth-child(2) { animation-delay: 0.2s; }
+    .step:nth-child(3) { animation-delay: 0.3s; }
+
+    .step:hover {
+      transform: translateY(-10px) scale(1.02);
+      border-color: #ff5a3c;
+      background: #ff5a3c10;
+    }
+    .step-num {
+      width: 70px; height: 70px;
+      background: #ff5a3c;
+      color: white;
+      border-radius: 50%;
+      display: flex; justify-content: center; align-items: center;
+      font-size: 1.8rem; font-weight: 900;
+      margin: 0 auto 1.5rem;
+      transition: 0.4s;
+      box-shadow: 0 10px 30px -10px #ff5a3c;
+    }
+    .step:hover .step-num {
+      transform: rotate(360deg) scale(1.1);
+    }
+    .step h4 { font-size: 1.3rem; margin-bottom: 0.6rem; }
+    .step p { color: #888078; font-size: 0.9rem; }
+
+    /* ===== TESTIMONIAL ===== */
+    .testimonial {
+      background: linear-gradient(135deg, #1a1816 0%, #0e0d0c 100%);
+      border-radius: 30px;
+      padding: 4rem 3rem;
+      text-align: center;
+      border: 1px solid #ff5a3c30;
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.8s ease;
+    }
+    .testimonial::before {
+      content: '\f10d';
+      font-family: 'Font Awesome 6 Free';
+      font-weight: 900;
+      position: absolute; top: -20px; left: 30px;
+      font-size: 10rem; color: #ff5a3c10;
+    }
+    .stars {
+      color: #ff5a3c; font-size: 1.5rem;
+      margin-bottom: 1.5rem;
+      display: flex; justify-content: center; gap: 8px;
+    }
+    .stars i { animation: bounce 1.5s ease infinite; }
+    .stars i:nth-child(2) { animation-delay: 0.1s; }
+    .stars i:nth-child(3) { animation-delay: 0.2s; }
+    .stars i:nth-child(4) { animation-delay: 0.3s; }
+    .stars i:nth-child(5) { animation-delay: 0.4s; }
+
+    .testimonial blockquote {
+      font-size: 1.6rem; font-weight: 400;
+      font-style: italic; line-height: 1.5;
+      max-width: 800px; margin: 0 auto 2rem;
+      color: #e8e0d5;
+    }
+    .testimonial .author {
+      font-weight: 700; color: #ff5a3c;
+      letter-spacing: 1px;
+    }
+
+    /* ===== NEWSLETTER ===== */
+    .newsletter {
+      background: #ff5a3c;
+      border-radius: 30px;
+      padding: 4rem 3rem;
+      text-align: center;
+      position: relative;
+      overflow: hidden;
+      animation: slideUp 0.8s ease;
+    }
+    .newsletter::before {
+      content: '';
+      position: absolute; top: -100px; right: -100px;
+      width: 300px; height: 300px;
+      background: #ffffff20;
+      border-radius: 50%;
+      animation: float 6s ease-in-out infinite;
+    }
+    .newsletter h3 {
+      font-size: 2.5rem; font-weight: 900;
+      color: white; margin-bottom: 1rem;
+      position: relative; z-index: 1;
+    }
+    .newsletter p {
+      color: #ffe8e0; margin-bottom: 2rem;
+      position: relative; z-index: 1;
+    }
+    .newsletter-form {
+      display: flex; gap: 10px;
+      max-width: 500px; margin: 0 auto;
+      position: relative; z-index: 1;
+      flex-wrap: wrap;
+    }
+    .newsletter-form input {
+      flex: 1 1 250px;
+      padding: 1rem 1.5rem;
+      border: none; border-radius: 50px;
+      font-size: 1rem;
+      outline: none;
+      transition: 0.3s;
+    }
+    .newsletter-form input:focus {
+      box-shadow: 0 0 0 4px #ffffff50;
+    }
+    .newsletter-form button {
+      background: #0e0d0c; color: white;
+      padding: 1rem 2rem;
+      border: none; border-radius: 50px;
+      font-weight: 700; cursor: pointer;
+      transition: 0.3s;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .newsletter-form button:hover {
+      transform: scale(1.05);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.4);
+    }
+
+    /* ===== FOOTER ===== */
+    footer {
+      background: #050505;
+      padding: 4rem 6% 2rem;
+      border-top: 1px solid #ff5a3c30;
+    }
+    .footer-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 3rem;
+      margin-bottom: 3rem;
+    }
+    .footer-col h5 {
+      color: #ff5a3c;
+      font-size: 1rem; font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 1.5px;
+      margin-bottom: 1.2rem;
+    }
+    .footer-col a {
+      display: block;
+      color: #b8b0a6; text-decoration: none;
+      padding: 6px 0;
+      transition: 0.3s;
+      font-size: 0.9rem;
+    }
+    .footer-col a:hover {
+      color: #ff5a3c;
+      transform: translateX(8px);
+    }
+    .footer-bottom {
+      border-top: 1px solid #ffffff10;
+      padding-top: 2rem;
+      text-align: center;
+      color: #666;
+      font-size: 0.85rem;
+    }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 900px) {
+      .hero-text h1 { font-size: 3rem; }
+      .shoe-circle { width: 350px; height: 350px; }
+      .shoe-emoji { font-size: 10rem; }
+      .section-head h2 { font-size: 2.2rem; }
+      nav ul { display: none; }
+    }
+    @media (max-width: 500px) {
+      .hero-text h1 { font-size: 2.3rem; }
+      .shoe-circle { width: 280px; height: 280px; }
+      .shoe-emoji { font-size: 8rem; }
+      .float-badge { font-size: 0.7rem; padding: 0.5rem 1rem; }
+      .testimonial blockquote { font-size: 1.2rem; }
+      .newsletter h3 { font-size: 1.8rem; }
+    }
+
+    /* Scroll reveal */
+    .reveal {
+      opacity: 0;
+      transform: translateY(40px);
+      transition: all 0.8s ease;
+    }
+    .reveal.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  </style>
+</head>
+<body>
+
+  <!-- Loader -->
+  <div id="loader">
+    <i class="fas fa-shoe-prints loader-shoe"></i>
+  </div>
+
+  <!-- Navbar -->
+  <nav>
+    <div class="logo">
+      <i class="fas fa-shoe-prints"></i> carete<span>.</span>
+    </div>
+    <ul>
+      <li><a href="#home">Home</a></li>
+      <li><a href="#shop">Shop</a></li>
+      <li><a href="#about">About</a></li>
+      <li><a href="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-icons">
+      <i class="fas fa-search"></i>
+      <i class="fas fa-heart"></i>
+      <i class="fas fa-shopping-bag">
+        <span class="cart-count" id="cartCount">0</span>
+      </i>
+    </div>
+  </nav>
+
+  <!-- Hero -->
+  <section class="hero" id="home">
+    <div class="hero-text">
+      <div class="tag">✦ Limited Edition Drop</div>
+      <h1>Step into <em>art</em> with every stride.</h1>
+      <p>Handcrafted sneakers designed for bold souls. Ethically made, unapologetically creative.</p>
+      <div class="cta-row">
+        <a href="#shop" class="btn btn-primary">
+          <i class="fas fa-bag-shopping"></i> Shop Now
+        </a>
+        <a href="#about" class="btn btn-ghost">
+          <i class="fas fa-play"></i> Our Story
+        </a>
+      </div>
+    </div>
+
+    <div class="hero-visual">
+      <div class="float-badge badge-1">
+        <i class="fas fa-star"></i> 4.9 / 5.0
+      </div>
+      <div class="float-badge badge-2">
+        <i class="fas fa-truck-fast"></i> Free Shipping
+      </div>
+      <div class="shoe-circle">
+        <i class="fas fa-shoe-prints shoe-emoji"></i>
+      </div>
+    </div>
+  </section>
+
+  <!-- Marquee -->
+  <div class="marquee">
+    <div class="marquee-track">
+      <span><i class="fas fa-star"></i> Handcrafted</span>
+      <span><i class="fas fa-leaf"></i> Eco-Friendly</span>
+      <span><i class="fas fa-fire"></i> Limited Runs</span>
+      <span><i class="fas fa-globe"></i> Carbon Neutral</span>
+      <span><i class="fas fa-star"></i> Handcrafted</span>
+      <span><i class="fas fa-leaf"></i> Eco-Friendly</span>
+      <span><i class="fas fa-fire"></i> Limited Runs</span>
+      <span><i class="fas fa-globe"></i> Carbon Neutral</span>
+    </div>
+  </div>
+
+  <!-- Products -->
+  <section id="shop">
+    <div class="section-head reveal">
+      <h2>Fresh <em>Drops</em></h2>
+      <p>Each pair is a numbered edition — once gone, gone forever.</p>
+    </div>
+
+    <div class="product-grid">
+      <div class="product reveal">
+        <div class="product-img"><i class="fas fa-shoe-prints"></i></div>
+        <h3>Volt Runner</h3>
+        <div class="desc">Neon energy meets comfort</div>
+        <div class="price">$189 <small>$240</small></div>
+        <button class="add-btn" onclick="addToCart(this)">
+          <i class="fas fa-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+
+      <div class="product reveal">
+        <div class="product-img"><i class="fas fa-cloud"></i></div>
+        <h3>Cloud Walker</h3>
+        <div class="desc">Featherlight, cloud-like feel</div>
+        <div class="price">$210 <small>$270</small></div>
+        <button class="add-btn" onclick="addToCart(this)">
+          <i class="fas fa-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+
+      <div class="product reveal">
+        <div class="product-img"><i class="fas fa-fire"></i></div>
+        <h3>Ember Low</h3>
+        <div class="desc">Bold street style fire</div>
+        <div class="price">$165 <small>$210</small></div>
+        <button class="add-btn" onclick="addToCart(this)">
+          <i class="fas fa-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+
+      <div class="product reveal">
+        <div class="product-img"><i class="fas fa-moon"></i></div>
+        <h3>Midnight Arc</h3>
+        <div class="desc">Sleek night-runner design</div>
+        <div class="price">$230 <small>$290</small></div>
+        <button class="add-btn" onclick="addToCart(this)">
+          <i class="fas fa-cart-plus"></i> Add to Cart
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Steps -->
+  <section id="about">
+    <div class="section-head reveal">
+      <h2>How It <em>Works</em></h2>
+      <p>Three simple steps to your dream pair.</p>
+    </div>
+    <div class="steps">
+      <div class="step reveal">
+        <div class="step-num">1</div>
+        <h4>Pick Your Style</h4>
+        <p>Browse our curated drops and pick the design that speaks to you.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">2</div>
+        <h4>Customize</h4>
+        <p>Choose colors, laces, and sole. Make it uniquely yours.</p>
+      </div>
+      <div class="step reveal">
+        <div class="step-num">3</div>
+        <h4>Wear & Flex</h4>
+        <p>We handcraft and deliver to your door in 5–7 days.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Testimonial -->
+  <section>
+    <div class="testimonial reveal">
+      <div class="stars">
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+        <i class="fas fa-star"></i>
+      </div>
+      <blockquote>
+        "Carete isn't just footwear — it's a canvas for your personality. Every pair feels like a piece of art I get to walk in."
+      </blockquote>
+      <div class="author">— Mira K., Creative Director</div>
+    </div>
+  </section>
+
+  <!-- Newsletter -->
+  <section id="contact">
+    <div class="newsletter reveal">
+      <h3>Join the Drop List</h3>
+      <p>Be the first to know about new releases and exclusive offers.</p>
+      <form class="newsletter-form" onsubmit="subscribe(event)">
+        <input type="email" placeholder="your@email.com" required>
+        <button type="submit">
+          <i class="fas fa-paper-plane"></i> Subscribe
+        </button>
+      </form>
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="footer-grid">
+      <div class="footer-col">
+        <div class="logo" style="font-size:1.5rem; margin-bottom:1rem;">
+          <i class="fas fa-shoe-prints"></i> carete<span>.</span>
+        </div>
+        <p style="color:#888; font-size:0.9rem;">
+          Handcrafted sneakers for bold souls.
+        </p>
+      </div>
+      <div class="footer-col">
+        <h5>Shop</h5>
+        <a href="#">New Arrivals</a>
+        <a href="#">Best Sellers</a>
+        <a href="#">Limited Edition</a>
+      </div>
+      <div class="footer-col">
+        <h5>Support</h5>
+        <a href="#">Shipping</a>
+        <a href="#">Returns</a>
+        <a href="#">Size Guide</a>
+      </div>
+      <div class="footer-col">
+        <h5>Follow</h5>
+        <a href="#">Instagram</a>
+        <a href="#">TikTok</a>
+        <a href="#">Pinterest</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      © 2025 Carete. All rights reserved. Made with <i class="fas fa-heart" style="color:#ff5a3c;"></i> for shoe lovers.
+    </div>
+  </footer>
+
+  <script>
+    // Loader
+    window.addEventListener('load', () => {
+      setTimeout(() => {
+        document.getElementById('loader').classList.add('hide');
+      }, 800);
+    });
+
+    // Cart counter with animation
+    let cart = 0;
+    function addToCart(btn) {
+      cart++;
+      const counter = document.getElementById('cartCount');
+      counter.textContent = cart;
+      counter.style.transform = 'scale(1.6)';
+      setTimeout(() => counter.style.transform = 'scale(1)', 300);
+
+      // Button feedback
+      const original = btn.innerHTML;
+      btn.innerHTML = '<i class="fas fa-check"></i> Added!';
+      btn.style.background = '#ff5a3c';
+      btn.style.color = 'white';
+      setTimeout(() => {
+        btn.innerHTML = original;
+        btn.style.background = 'transparent';
+        btn.style.color = '#ff5a3c';
+      }, 1500);
+    }
+
+    // Newsletter form
+    function subscribe(e) {
+      e.preventDefault();
+      const form = e.target;
+      const input = form.querySelector('input');
+      const button = form.querySelector('button');
+      const original = button.innerHTML;
+      button.innerHTML = '<i class="fas fa-check"></i> Subscribed!';
+      input.value = '';
+      setTimeout(() => {
+        button.innerHTML = original;
+      }, 2000);
+    }
+
+    // Scroll reveal
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('show');
+        }
+      });
+    }, { threshold: 0.15 });
+
+    document.querySelectorAll('.reveal').forEach(el => observer.observe(el));
+
+    // Smooth scroll
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', (e) => {
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) {
+          e.preventDefault();
+          target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      });
+    });
+
+    // Parallax hero on mouse move
+    document.querySelector('.hero').addEventListener('mousemove', (e) => {
+      const shoe = document.querySelector('.shoe-circle');
+      const x = (e.clientX / window.innerWidth - 0.5) * 30;
+      const y = (e.clientY / window.innerHeight - 0.5) * 30;
+      shoe.style.transform = `translate(${x}px, ${y}px)`;
+    });
+  </script>
+</body>
+</html>
